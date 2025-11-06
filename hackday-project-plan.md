@@ -156,7 +156,7 @@ node src/index.js --task <task_number> --pr <github_pr_url>
 ## 🤖 AI Summarization (Gemini)
 
 **Prompt Template:**
-> “You are an AI assistant that summarizes GitHub development activity into a concise, human-friendly update.  
+> “You are an AI assistant that summarizes GitHub development activity into a concise, human-friendly update.
 > Given the task description, PR title, commits, and file changes, write a short report describing what was achieved, the main areas changed, and any notable technical aspects.”
 
 **Input JSON Example:**
