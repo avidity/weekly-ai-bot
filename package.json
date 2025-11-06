@@ -1,0 +1,26 @@
+{
+  "name": "weekly-ai-bot",
+  "version": "1.0.0",
+  "description": "AI-powered GitHub + Slack summarizer for project updates",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "ai",
+    "github",
+    "slack",
+    "summarizer"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

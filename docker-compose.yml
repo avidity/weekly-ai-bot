@@ -1,0 +1,9 @@
+services:
+  github-weekly-ai-bot:
+     build: .
+     container_name: github-weekly-ai-bot
+     env_file:
+        - .env
+     volumes:
+        - .:/app
+     command: npm run dev

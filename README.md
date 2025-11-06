@@ -26,7 +26,7 @@ Perfect for weekly updates, client meeting prep, or just keeping track of progre
 
 1. **Clone the repo**
     ```sh
-    git clone https://github.com/<your-org>/github-weekly-ai-bot.git
+    git clone https://github.com/avidity/weekly-ai-bot.git
     cd github-weekly-ai-bot
     ```
 
