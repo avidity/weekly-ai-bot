@@ -5,6 +5,10 @@ const githubProject = require('./github/project');
 const summarizer = require('./ai/summarizer');
 const slackNotifier = require('./slack/notifier');
 
+const dotenv = require('dotenv');
+const isDocker = process.env.DOCKER_ENV === 'true';
+dotenv.config({ path: isDocker ? '/app/.env' : '.env' });
+
 const parseRepoUrl = (repoUrl) => {
   let match = repoUrl.match(/github.com[\/|:]([^\/]+)\/([^\/\.]+)/);
   if (!match) {
