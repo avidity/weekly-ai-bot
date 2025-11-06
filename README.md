@@ -14,11 +14,11 @@ Perfect for weekly updates, client meeting prep, or just keeping track of progre
 
 ## 🧩 Features
 
-- 🔍 Fetch PR details, commits, and file changes from GitHub
+- 🔍 Fetch PRs, commits, and file changes from a repository within a given period
 - 🧠 Summarize using Gemini AI (via API or CLI)
 - 💬 Post result to Slack automatically
 - 🧰 Run locally, in Docker, or via GitHub Actions
-- ⚙️ Accepts task number and PR URL as input
+- ⚙️ Accepts a repository URL and an optional period in days (defaults to 7)
 
 ---
 
@@ -63,15 +63,15 @@ Perfect for weekly updates, client meeting prep, or just keeping track of progre
 
 ## 🧠 Usage
 
-Run the bot with a task number and PR link:
+Run the bot with a repository URL and an optional period in days:
 
 ```sh
-node src/index.js --task 312 --pr https://github.com/acme/project/pull/45
+node src/index.js --repo https://github.com/acme/project --period 7
 ```
 
 **Example output:**
 > ✨ Summary ready!
-> "This week, 12 commits and 3 PRs were merged. The new authentication flow was completed, login error handling improved, and dashboard layout refactored for responsiveness. Two caching issues remain open."
+> "This week, 5 PRs were merged and 2 are still open. The new features include a revamped authentication flow and improved dashboard layout. Several bugs were fixed, including a critical one related to caching. The team also refactored the logging mechanism for better performance."
 
 The same summary will be automatically posted to your configured Slack channel.
 
@@ -131,7 +131,6 @@ You’re encouraged to use Gemini CLI or ChatGPT during development to:
 
 ## 🧾 Stretch Goals
 
-- Support multiple PRs per summary (weekly digest)
 - Add cron job for weekly automation
 - Different tones (“client-friendly”, “technical”, “fun”)
 - Charts for commit/PR stats (QuickChart API)
@@ -143,16 +142,16 @@ You’re encouraged to use Gemini CLI or ChatGPT during development to:
 
 **Command:**
 ```sh
-node src/index.js --task 42 --pr https://github.com/acme/app/pull/99
+node src/index.js --repo https://github.com/acme/app --period 7
 ```
 
 **Flow:**
-1. Fetch PR + task info from GitHub
+1. Fetch PRs from the last 7 days from GitHub
 2. Summarize using Gemini
 3. Post result to Slack
 
 **Output Example:**
-> PR #99 merged 🎉 — The new caching layer improves API speed by 30%. Added cache invalidation logic and updated tests. Two edge cases pending next sprint.
+> Weekly Summary 🎉 — 3 PRs merged, 1 open. Key updates include the new caching layer which improves API speed by 30%, and a fix for the authentication flow. Two edge cases are pending for the next sprint.
 
 ---
 
