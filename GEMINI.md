@@ -124,6 +124,29 @@ This summary will be posted to Slack and optionally logged locally.
 
 ---
 
+## ✨ Summary Template
+
+This is the universal template for all summaries. It should be used to generate non-technical, outcome-focused updates that are adaptable to any context (e.g., a large feature, a small bug fix, or research).
+
+**✨ [Highlight Title]**
+*A brief, engaging summary of the key accomplishment.*
+
+**🎯 Goal**
+*What was the primary objective? (e.g., "Improve user login speed," "Fix critical payment bug," "Explore new mapping libraries for the dashboard.")*
+
+**🚀 What's New**
+- A simple, outcome-focused bullet point.
+- Another one, explaining a key change from a user's perspective.
+- And a third, if needed, focusing on the benefit.
+
+**📈 Impact**
+*How does this change things? (e.g., "Reduces login time by 50%," "Prevents incorrect charges for customers," "Provides a clear path forward for our Q3 mapping feature.")*
+
+**🔗 Details**
+*(Optional) Link to the PR, task, design document, or other resources.*
+
+---
+
 ## 👥 Maintainers
 
 - Henrique Tegel

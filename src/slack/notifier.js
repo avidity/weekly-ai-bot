@@ -3,7 +3,17 @@ const config = require('../config/env');
 
 const slackNotifier = {
   notify: async (message) => {
-    await axios.post(config.slackWebhookUrl, { text: message });
+    await axios.post(config.slackWebhookUrl, {
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: message,
+          },
+        },
+      ],
+    });
   },
 };
 
