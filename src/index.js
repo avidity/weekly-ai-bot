@@ -1,18 +1,18 @@
 const logger = require('./utils/logger');
 const githubClient = require('./github/client');
 const parser = require('./github/parser');
+const githubProject = require('./github/project');
 const summarizer = require('./ai/summarizer');
 const slackNotifier = require('./slack/notifier');
 
-const parsePrUrl = (prUrl) => {
-  const match = prUrl.match(/github.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/);
+const parseRepoUrl = (repoUrl) => {
+  let match = repoUrl.match(/github.com[\/|:]([^\/]+)\/([^\/\.]+)/);
   if (!match) {
     return null;
   }
   return {
-    org: match[1],
+    owner: match[1],
     repo: match[2],
-    prNumber: match[3],
   };
 };
 
@@ -20,42 +20,62 @@ const main = async () => {
   logger.info('Starting the weekly AI bot...');
 
   const args = process.argv.slice(2);
-  const taskIndex = args.findIndex(arg => arg === '--task');
-  const prIndex = args.findIndex(arg => arg === '--pr');
+  const repoIndex = args.findIndex(arg => arg === '--repo');
+  const periodIndex = args.findIndex(arg => arg === '--period');
 
-  const task = taskIndex !== -1 ? args[taskIndex + 1] : null;
-  const prUrl = prIndex !== -1 ? args[prIndex + 1] : null;
+  const repoUrl = repoIndex !== -1 ? args[repoIndex + 1] : null;
+  const period = periodIndex !== -1 ? parseInt(args[periodIndex + 1], 10) : 7;
 
-  if (!task || !prUrl) {
-    logger.error('Missing --task or --pr argument.');
+  if (!repoUrl) {
+    logger.error('Missing --repo argument.');
     return;
   }
 
-  logger.info(`Task: ${task}`);
-  logger.info(`PR URL: ${prUrl}`);
+  logger.info(`Repo URL: ${repoUrl}`);
+  logger.info(`Period: ${period} days`);
 
-  const prDetails = parsePrUrl(prUrl);
-  if (!prDetails) {
-    logger.error('Invalid PR URL.');
+  const repoDetails = parseRepoUrl(repoUrl);
+  if (!repoDetails) {
+    logger.error('Invalid repo URL.');
     return;
   }
+
+  logger.info(`Owner: ${repoDetails.owner}, Repo: ${repoDetails.repo}`);
 
   try {
-    const [prData, commits, files] = await Promise.all([
-      githubClient.getPRDetails(prDetails.org, prDetails.repo, prDetails.prNumber),
-      githubClient.getPRCommits(prDetails.org, prDetails.repo, prDetails.prNumber),
-      githubClient.getPRFiles(prDetails.org, prDetails.repo, prDetails.prNumber),
-    ]);
+    const prs = await githubClient.getPRs(repoDetails.owner, repoDetails.repo, period);
+    logger.info(`Found ${prs.length} PRs.`);
 
-    const parsedData = parser.parsePR(prData, commits, files);
-    
-    const summaryText = `
-      Task: ${task}
-      PR Title: ${parsedData.title}
-      PR Description: ${parsedData.description}
-      Commits: ${parsedData.commits.join(', ')}
-      Files Changed: ${parsedData.files_changed.join(', ')}
-    `;
+    const allPrData = await Promise.all(
+      prs.map(async (pr) => {
+        const prNumber = pr.number;
+        const [prData, commits, files] = await Promise.all([
+          githubClient.getPRDetails(repoDetails.owner, repoDetails.repo, prNumber),
+          githubClient.getPRCommits(repoDetails.owner, repoDetails.repo, prNumber),
+          githubClient.getPRFiles(repoDetails.owner, repoDetails.repo, prNumber),
+        ]);
+        const taskDetails = await githubProject.getTaskDetails(repoDetails.owner, repoDetails.repo, prData.body);
+        return parser.parsePR(prData, commits, files, taskDetails);
+      })
+    );
+
+    const summaryText = allPrData.map(prData => {
+      let taskInfo = 'No linked task';
+      if (prData.task) {
+        taskInfo = `
+        Linked Task: #${prData.task.taskNumber} - ${prData.task.title}
+        Task Description: ${prData.task.description}
+        `;
+      }
+
+      return `
+        PR Title: ${prData.title}
+        PR Description: ${prData.description}
+        ${taskInfo}
+        Commits: ${prData.commits.join(', ')}
+        Files Changed: ${prData.files_changed.join(', ')}
+      `;
+    }).join('\n');
 
     const summary = await summarizer.summarize(summaryText);
     logger.info('Summary:');

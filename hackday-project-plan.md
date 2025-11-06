@@ -1,20 +1,12 @@
-# 🚀 Hackday Project Plan: “What Did We Even Do This Week?” Bot
-
-## 🧠 Overview
-
-Build an AI-powered GitHub summary bot that reads Pull Requests and related tasks, generates human-friendly summaries, and posts them automatically to Slack.
-
----
-
 ## 🎯 Core Goal
 
-Given a task number and a PR link, the bot will:
+Given a repository URL and an optional period in days (defaulting to 7), the bot will:
 
 1. **Connect to GitHub**
-2. **Fetch task details** (from the project board)
-3. **Read PR description, commits, and file changes**
-4. **Use Gemini to summarize activity**
-5. **Post summary to Slack**
+2. **Fetch all PRs (merged and open) within the given period**
+3. **For each PR, read its description, commits, and file changes**
+4. **Use Gemini to summarize all the activity**
+5. **Post the summary to Slack**
 
 > **Focus:** 2-day hackathon for experimentation, automation, and maximizing AI usage.
 
@@ -122,26 +114,25 @@ services:
 
 **Input:**
 ```sh
-node src/index.js --task <task_number> --pr <github_pr_url>
+node src/index.js --repo <github_repo_url> --period <days>
 ```
 
 **Flow:**
-1. Parse PR URL → extract org/repo + PR number
-2. Fetch PR details, commits, and changed files from GitHub API
-3. Fetch related task details from the project board (if available)
-4. Feed all data to Gemini with a summarization prompt
-5. Receive a human-readable summary (technical or executive tone)
-6. Post summary to Slack via webhook
+1. Parse repo URL → extract org/repo.
+2. Fetch all PRs (merged and open) from the last `n` days.
+3. For each PR, fetch commits and file changes.
+4. Feed all data to Gemini with a summarization prompt.
+5. Receive a human-readable summary.
+6. Post summary to Slack via webhook.
 
 ---
 
 ## 🔌 GitHub Integration
 
 - **Endpoints:**
-  - `GET /repos/{owner}/{repo}/pulls/{pull_number}`
+  - `GET /repos/{owner}/{repo}/pulls`
   - `GET /repos/{owner}/{repo}/pulls/{pull_number}/commits`
   - `GET /repos/{owner}/{repo}/pulls/{pull_number}/files`
-  - `GET /issues/{issue_number}` or project card details (for the task)
 
 - **Authentication:**
   ```js
@@ -157,20 +148,30 @@ node src/index.js --task <task_number> --pr <github_pr_url>
 
 **Prompt Template:**
 > “You are an AI assistant that summarizes GitHub development activity into a concise, human-friendly update.
-> Given the task description, PR title, commits, and file changes, write a short report describing what was achieved, the main areas changed, and any notable technical aspects.”
+> Given a list of pull requests, their descriptions, commits, and file changes, write a short report describing what was achieved, the main areas changed, and any notable technical aspects.”
 
 **Input JSON Example:**
 ```json
 {
-  "task": "Improve authentication flow",
-  "pr_description": "Refactor login logic and fix token expiration bug.",
-  "commits": ["Add JWT helper", "Refactor login route", "Fix token refresh issue"],
-  "files_changed": ["auth.js", "routes/login.js", "tests/auth.test.js"]
+  "prs": [
+    {
+      "title": "Improve authentication flow",
+      "description": "Refactor login logic and fix token expiration bug.",
+      "commits": ["Add JWT helper", "Refactor login route", "Fix token refresh issue"],
+      "files_changed": ["auth.js", "routes/login.js", "tests/auth.test.js"]
+    },
+    {
+      "title": "Fix caching issue",
+      "description": "Add cache invalidation for user profiles.",
+      "commits": ["Add cache invalidation", "Update user profile tests"],
+      "files_changed": ["cache.js", "tests/user.test.js"]
+    }
+  ]
 }
 ```
 
 **Expected Output:**
-> This week’s update: the authentication flow was refactored for cleaner token management and better reliability. A new JWT helper was added and login routes were simplified. Test coverage improved for edge cases like token refresh.
+> This week’s update: The authentication flow was refactored for cleaner token management and better reliability. A new JWT helper was added and login routes were simplified. Additionally, a caching issue for user profiles was resolved by implementing cache invalidation.
 
 ---
 
@@ -208,7 +209,6 @@ node src/index.js --task <task_number> --pr <github_pr_url>
 
 ## 🧾 Stretch Goals
 
-- Summarize multiple PRs at once (weekly digest)
 - Add cron job to run weekly automatically
 - Tone selector (“client-friendly”, “technical”, “fun mode”)
 - Chart integration (commits per week via quickchart.io)
@@ -231,15 +231,15 @@ node src/index.js --task <task_number> --pr <github_pr_url>
 
 **Input:**
 ```sh
-node src/index.js --task 312 --pr https://github.com/acme/app/pull/56
+node src/index.js --repo https://github.com/acme/app --period 7
 ```
 
 **Process:**
-1. Fetch GitHub data
+1. Fetch GitHub data for the last 7 days
 2. Summarize via Gemini
 3. Post summary to Slack
 
 **Output (Slack):**
-> PR #56 merged 🎉 Auth flow refactor complete, improved login handling and token refresh reliability. Two minor tasks remain (unit tests, cache cleanup).
+> Weekly Summary 🎉 — 3 PRs merged, 1 open. Key updates include the new caching layer which improves API speed by 30%, and a fix for the authentication flow. Two edge cases are pending for the next sprint.
 
 That’s your “what did we even do this week?” moment.
