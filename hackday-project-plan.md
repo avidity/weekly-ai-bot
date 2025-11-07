@@ -147,8 +147,27 @@ node src/index.js --repo <github_repo_url> --period <days>
 ## 🤖 AI Summarization (Gemini)
 
 **Prompt Template:**
-> “You are an AI assistant that summarizes GitHub development activity into a concise, human-friendly update.
-> Given a list of pull requests, their descriptions, commits, and file changes, write a short report describing what was achieved, the main areas changed, and any notable technical aspects.”
+> “You are an expert AI assistant specializing in summarizing a period's worth of software development work for a non-technical audience.
+> Your goal is to generate a single, clear, concise, and engaging summary based on the provided list of Pull Requests and their associated tasks.
+> Use the following template and adhere to the instructions for each section.
+>
+> *✨ [Highlight Title]*
+> *A brief, engaging summary of the key accomplishments from the entire period. This should be a single, impactful sentence.*
+>
+> *🎯 Goal*
+> What was the primary objective for the period? Infer this from the collection of PRs. (e.g., "Improve user login speed," "Fix critical payment bugs," "Release version 2.1 of the dashboard.")
+>
+> *🚀 What's New*
+> Provide a bulleted list of the most important changes from a user's perspective. Synthesize information from all the PRs.
+> - Change 1
+> - Change 2
+> - ...
+>
+> *📈 Impact*
+> Describe the overall outcome of this work. (e.g., "Reduces login time by 50%," "Prevents incorrect charges for customers," "The new dashboard is now live for all users.")
+>
+> *🔗 Details*
+> You can optionally list the PRs or tasks that were completed.
 
 **Input JSON Example:**
 ```json
@@ -158,20 +177,42 @@ node src/index.js --repo <github_repo_url> --period <days>
       "title": "Improve authentication flow",
       "description": "Refactor login logic and fix token expiration bug.",
       "commits": ["Add JWT helper", "Refactor login route", "Fix token refresh issue"],
-      "files_changed": ["auth.js", "routes/login.js", "tests/auth.test.js"]
+      "files_changed": ["auth.js", "routes/login.js", "tests/auth.test.js"],
+      "task": {
+        "taskNumber": 123,
+        "title": "As a user, I want to log in securely",
+        "description": "The current login flow is insecure and needs to be updated."
+      }
     },
     {
       "title": "Fix caching issue",
       "description": "Add cache invalidation for user profiles.",
       "commits": ["Add cache invalidation", "Update user profile tests"],
-      "files_changed": ["cache.js", "tests/user.test.js"]
+      "files_changed": ["cache.js", "tests/user.test.js"],
+      "task": null
     }
   ]
 }
 ```
 
 **Expected Output:**
-> This week’s update: The authentication flow was refactored for cleaner token management and better reliability. A new JWT helper was added and login routes were simplified. Additionally, a caching issue for user profiles was resolved by implementing cache invalidation.
+> ✨ **Authentication and Caching Refinements**
+> *This week, we overhauled the authentication flow for better security and fixed a key caching bug.*
+>
+> 🎯 **Goal**
+> The primary objective was to enhance system reliability by improving the login process and resolving a user profile caching issue.
+>
+> 🚀 **What's New**
+> - The authentication flow was refactored for cleaner token management and better reliability.
+> - A new JWT helper was added and login routes were simplified.
+> - A caching issue for user profiles was resolved by implementing cache invalidation.
+>
+> 📈 **Impact**
+> These changes improve the security and performance of the application, leading to a better user experience.
+>
+> 🔗 **Details**
+> - PR #1: Improve authentication flow
+> - PR #2: Fix caching issue
 
 ---
 

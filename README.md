@@ -61,19 +61,35 @@ Perfect for weekly updates, client meeting prep, or just keeping track of progre
 
 ---
 
-## 🧠 Usage
+## 🏃‍♀️ Usage
 
-Run the bot with a repository URL and an optional period in days:
+There are two ways to run the bot:
+
+### 1. CLI
+
+Run the bot directly from your terminal with a repository URL and an optional period in days:
 
 ```sh
 node src/index.js --repo https://github.com/acme/project --period 7
 ```
 
-**Example output:**
-> ✨ Summary ready!
-> "This week, 5 PRs were merged and 2 are still open. The new features include a revamped authentication flow and improved dashboard layout. Several bugs were fixed, including a critical one related to caching. The team also refactored the logging mechanism for better performance."
+### 2. Slack Command
 
-The same summary will be automatically posted to your configured Slack channel.
+The bot can be triggered via a Slack slash command.
+
+**Command:**
+
+```
+/summary <period_in_days> <repository_url>
+```
+
+**Example:**
+
+```
+/summary 7 https://github.com/avidity/weekly-ai-bot
+```
+
+This will trigger the bot to generate a summary for the last 7 days and post it to the configured Slack channel.
 
 ---
 
