@@ -5,38 +5,43 @@ const logger = require('../utils/logger');
 const app = express();
 const port = 3000;
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.post('/summarize', (req, res) => {
-  const { text } = req.body;
+  const text = req.body?.text;
 
   if (!text) {
-    return res.status(400).json({ error: 'The "text" parameter is missing.' });
+    return res.status(400).json({ error: 'Missing text parameter.' });
   }
 
-  const parts = text.split(' ');
+  const parts = text.trim().split(/\s+/);
   if (parts.length < 2) {
-    return res.status(400).json({ error: 'The "text" parameter must be in the format "[period] [repo_url]".' });
+    return res.status(400).json({ error: 'Use the format: "/summary 7 https://github.com/org/repo"' });
   }
 
   const [period, repoUrl] = parts;
-
   const command = `node src/index.js --repo ${repoUrl} --period ${period}`;
   logger.info(`Executing command: ${command}`);
 
+  // ✅ Respond immediately to Slack
+  res.status(200).send(`⏳ Got it! Generating summary for *${repoUrl}* (last ${period} days)...`);
+
+  // Then do the work asynchronously
   exec(command, (error, stdout, stderr) => {
     if (error) {
       logger.error(`Execution error: ${error.message}`);
-      return res.status(500).json({ error: 'Failed to execute the summarizer.', details: stderr });
+      return;
     }
 
-    // The summary is logged to the console, so we extract it from stdout.
     const summaryMatch = stdout.match(/Summary:\s*([\s\S]*?)Summary sent to Slack/);
     const summary = summaryMatch ? summaryMatch[1].trim() : 'Could not parse summary from output.';
-    
-    res.status(200).json({ summary });
+
+    // Optional: log it locally
+    logger.info('Summary generated:', summary);
   });
 });
+
 
 app.listen(port, () => {
   logger.info(`API server listening at http://localhost:${port}`);
