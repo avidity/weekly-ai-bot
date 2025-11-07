@@ -6,4 +6,7 @@ services:
         - .env
      volumes:
         - .:/app
-     command: tail -f /dev/null
+        - /app/node_modules
+     command: npm run start:api
+     ports:
+        - "3000:3000"
